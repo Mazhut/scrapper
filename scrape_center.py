@@ -110,6 +110,7 @@ def store_data_as_csv(zip_obj, site, category, directory_path=None):
     os.makedirs(directory_path, exist_ok=True)
 
     file_path = os.path.join(directory_path, f'{site}-{category}-{today}.csv')
+    csv_name = f'{site}-{category}-{today}.csv'
     logging.debug(f"Saving CSV file at path: {file_path}")
 
     try:
@@ -122,7 +123,7 @@ def store_data_as_csv(zip_obj, site, category, directory_path=None):
     except Exception as e:
         logging.error(f"Failed to save CSV file: {e}")
 
-    download_csv(site, category, today)
+    download_csv(site, category, today, csv_name)
 
     return file_path
 
@@ -132,9 +133,9 @@ def check_os(path):
 
 
 @app.route('/getCSV')
-def download_csv(li1, li2, actual_date):
+def download_csv(li1, li2, actual_date, file_name):
     return send_file(
-        'outputs/Adjacency.csv',
+        f'/opt/render/{file_name}',
         mimetype='text/csv',
         download_name=f'{li1}-{li2}-{actual_date}.csv',
         as_attachment=True
