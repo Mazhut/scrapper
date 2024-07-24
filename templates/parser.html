@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <!-- <meta charset="multipart/form-data"> -->
+  <meta charset="utf-8">
+ </head>
+
+ <center>
+ <body>
+  <h2>Parsed successfully!</h2>
+  <h5>From link:</h5>
+  <a href="{{html_data}}">{{html_data}}</a>
+  <p></p>
+  <form action="{{url_for('home_page')}}" method="get">
+   <label for="back_button">
+     <button name="back_button">Back to Parser</button>
+   </label>
+  </form>
+ </body>
+  </center>
+</html>
