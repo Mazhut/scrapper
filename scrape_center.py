@@ -4,6 +4,7 @@ import datetime
 import csv
 import subprocess
 import os
+from sys import platform
 
 
 def parse_category(src):
@@ -95,8 +96,12 @@ def store_data_as_csv(zip_obj, site, category, directory_path=create_parser_fold
     str_today = str(date_today)
     today = str_today.rsplit()[0]
 
+
+    check_os(directory_path)
     # Ensure the directory exists
-    os.makedirs(directory_path, exist_ok=True)
+    # os.makedirs(directory_path, exist_ok=True)
+
+
 
     # Define the full path for the CSV file
     file_path = os.path.join(directory_path, f'{site}-{category}-{today}.csv')
@@ -108,3 +113,17 @@ def store_data_as_csv(zip_obj, site, category, directory_path=create_parser_fold
             writer.writerow(item)
 
     subprocess.call(['open', directory_path])
+
+
+def check_os(path):
+    if platform == "linux" or platform == "linux2":
+        directory = "scrapper"
+        parent_dir = "/home/User/Documents"
+        new_path = os.path.join(parent_dir, directory)
+        os.mkdir(new_path)
+    elif platform == "darwin":
+        os.makedirs(path, exist_ok=True)
+    elif platform == "win32":
+        new_path = r'C:\Program Files\arbitrary'
+        if not os.path.exists(new_path):
+            os.makedirs(new_path)
