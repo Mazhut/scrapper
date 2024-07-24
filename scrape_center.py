@@ -135,7 +135,7 @@ def check_os(path):
 @app.route('/getCSV')
 def download_csv(li1, li2, actual_date, file_name):
     return send_file(
-        f'/opt/render/{file_name}',
+        f'/opt/render/data_scrapper/{file_name}',
         mimetype='text/csv',
         download_name=f'{li1}-{li2}-{actual_date}.csv',
         as_attachment=True
