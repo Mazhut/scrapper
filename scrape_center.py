@@ -4,6 +4,10 @@ import datetime
 import csv
 import os
 from sys import platform
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def parse_category(src):
@@ -85,21 +89,27 @@ def create_parser_folder():
     # Construct the path to the desired directory
     folder = os.path.join(home_dir, folder_name)
 
+    logging.debug(f"Creating directory at path: {folder}")
+
     if not os.path.exists(folder):
         os.makedirs(folder)
     return folder
 
 
-def store_data_as_csv(zip_obj, site, category, directory_path=create_parser_folder()):
+def store_data_as_csv(zip_obj, site, category, directory_path=None):
+    if directory_path is None:
+        directory_path = create_parser_folder()
+
     date_today = datetime.datetime.now()
     str_today = str(date_today)
-    today = str_today.rsplit()[0]
+    today = str_today.split()[0]
 
     # Ensure the directory exists
     os.makedirs(directory_path, exist_ok=True)
 
     # Define the full path for the CSV file
     file_path = os.path.join(directory_path, f'{site}-{category}-{today}.csv')
+    logging.debug(f"Saving CSV file at path: {file_path}")
 
     with open(file_path, 'w+', newline='') as csvfile:
         writer = csv.writer(csvfile)
@@ -107,8 +117,7 @@ def store_data_as_csv(zip_obj, site, category, directory_path=create_parser_fold
         for item in zip_obj:
             writer.writerow(item)
 
-    # Removed subprocess call to open the directory
-    # subprocess.call(['open', directory_path])
+    logging.info(f"CSV file saved successfully at {file_path}")
 
 
 def check_os(path):
