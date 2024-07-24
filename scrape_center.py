@@ -1,3 +1,4 @@
+from flask import Flask, send_from_directory
 from bs4 import BeautifulSoup
 import requests
 import datetime
@@ -6,12 +7,18 @@ import os
 from sys import platform
 import logging
 
+app = Flask(__name__)
+
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def parse_category(src):
-    res = requests.get(src)  # Making a request to the link
+    logging.debug(f"Fetching category from URL: {src}")
+    res = requests.get(src)
+    if res.status_code != 200:
+        logging.error(f"Failed to fetch URL: {src} with status code: {res.status_code}")
+        return
     soup = BeautifulSoup(res.text, 'html.parser')
     products = soup.select('span[itemprop]')
     prices = soup.select('.price')
@@ -41,6 +48,7 @@ def parse_page(products_info, prices_info, src):
 def detect_site(src):
     site_index = src.index('.by')
     site_address = src[8:site_index+3]
+    logging.debug(f"Detected site: {site_address}")
     return site_address
 
 
@@ -49,7 +57,6 @@ def detect_category(src):
 
     try:
         question_index = src.index('?')
-    # If link does not contain '?'
     except ValueError:
         question_index = -1
 
@@ -61,6 +68,7 @@ def detect_category(src):
     slash_index = long_address.index('/')
 
     category_address = long_address[slash_index+1:-1]
+    logging.debug(f"Detected category: {category_address}")
     return category_address
 
 
@@ -82,11 +90,7 @@ def values_detector(li, li2, li3):
 
 def create_parser_folder():
     folder_name = 'data_scrapper'
-
-    # Use a generic location
     home_dir = os.path.expanduser("~")
-
-    # Construct the path to the desired directory
     folder = os.path.join(home_dir, folder_name)
 
     logging.debug(f"Creating directory at path: {folder}")
@@ -104,26 +108,34 @@ def store_data_as_csv(zip_obj, site, category, directory_path=None):
     str_today = str(date_today)
     today = str_today.split()[0]
 
-    # Ensure the directory exists
     os.makedirs(directory_path, exist_ok=True)
 
-    # Define the full path for the CSV file
     file_path = os.path.join(directory_path, f'{site}-{category}-{today}.csv')
     logging.debug(f"Saving CSV file at path: {file_path}")
 
-    with open(file_path, 'w+', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['Наименование товара', 'Цена, руб.'])
-        for item in zip_obj:
-            writer.writerow(item)
+    try:
+        with open(file_path, 'w+', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['Наименование товара', 'Цена, руб.'])
+            for item in zip_obj:
+                writer.writerow(item)
+        logging.info(f"CSV file saved successfully at {file_path}")
+    except Exception as e:
+        logging.error(f"Failed to save CSV file: {e}")
 
-    logging.info(f"CSV file saved successfully at {file_path}")
+    return file_path
 
 
 def check_os(path):
-    if platform == "linux" or platform == "linux2":
-        os.makedirs(path, exist_ok=True)
-    elif platform == "darwin":
-        os.makedirs(path, exist_ok=True)
-    elif platform == "win32":
-        os.makedirs(path, exist_ok=True)
+    os.makedirs(path, exist_ok=True)
+
+
+@app.route('/download-csv')
+def download_csv():
+    file_path = store_data_as_csv(zip_obj, site, category)
+    directory, filename = os.path.split(file_path)
+    return send_from_directory(directory, filename)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
