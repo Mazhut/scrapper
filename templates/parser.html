@@ -1,26 +1,25 @@
 <!DOCTYPE html>
 <html>
-<head>
+ <head>
   <meta charset="utf-8">
-  <title>Parsed Successfully</title>
-</head>
-<body>
-  <center>
-    <h2>Parsed successfully!</h2>
-    <h5>From link:</h5>
-    <a href="{{ html_data }}">{{ html_data }}</a>
-    <p></p>
-    <form action="{{ url_for('home_page') }}" method="get">
-      <label for="back_button">
-        <button name="back_button">Back to Parser</button>
-      </label>
-    </form>
-    <p></p>
-    <form action="{{ url_for('download_csv', filename=csv_filename) }}" method="get">
-      <label for="download_button">
-        <button type="submit" name="download_button">Download CSV</button>
-      </label>
-    </form>
-  </center>
-</body>
+ </head>
+
+ <center>
+ <body>
+  <h2>Parsed successfully!</h2>
+  <h5>From link:</h5>
+  <a href="{{html_data}}">{{html_data}}</a>
+  <p></p>
+  <form action="{{url_for('home_page')}}" method="get">
+   <label for="back_button">
+     <button name="back_button">Back to Parser</button>
+   </label>
+  </form>
+  <form action="{{ url_for('download_csv', filename=csv_filename) }}" method="get">
+   <label for="download_button">
+     <button name="download_button">Download CSV</button>
+   </label>
+  </form>
+ </body>
+ </center>
 </html>
