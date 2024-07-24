@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, send_file
 from bs4 import BeautifulSoup
 import requests
 import datetime
@@ -122,6 +122,8 @@ def store_data_as_csv(zip_obj, site, category, directory_path=None):
     except Exception as e:
         logging.error(f"Failed to save CSV file: {e}")
 
+    download_csv(site, category, today)
+
     return file_path
 
 
@@ -129,11 +131,14 @@ def check_os(path):
     os.makedirs(path, exist_ok=True)
 
 
-@app.route('/download-csv')
-def download_csv():
-    file_path = store_data_as_csv(zip_obj, site, category)
-    directory, filename = os.path.split(file_path)
-    return send_from_directory(directory, filename)
+@app.route('/getCSV')
+def download_csv(li1, li2, actual_date):
+    return send_file(
+        'outputs/Adjacency.csv',
+        mimetype='text/csv',
+        download_name=f'{li1}-{li2}-{actual_date}.csv',
+        as_attachment=True
+    )
 
 
 if __name__ == '__main__':
